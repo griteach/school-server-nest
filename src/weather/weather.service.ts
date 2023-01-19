@@ -1,11 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
-
-import Movie from './entities/movie.entity';
+import { Injectable } from '@nestjs/common';
 import Weather from './entities/weather.entity';
 
 @Injectable()
 export class WeatherService {
-  // Database
   private API_KEY =
     'l72zwz6RqrexXr8a4wslQsw%2Bx0zTGnE5R1sSf26aPRPOQytFjk3AkCOTfssOo1TQ8xQoimJbfkfYL6YZr%2FssIw%3D%3D';
   //미세먼지 기본 패쓰
@@ -20,9 +17,7 @@ export class WeatherService {
   }&numOfRows=100&returnType=json&ver=1.3&sidoName=${encodeURIComponent(
     '강원',
   )}`;
-  private movies: Movie[] = [];
   private weathers: Weather[] = [];
-
   async fetchWeather() {
     const result = await fetch(this.url)
       .then((response) => response.json())
@@ -32,37 +27,8 @@ export class WeatherService {
       );
     this.weathers = result;
   }
-
-  getAll() {
+  getWeather() {
     this.fetchWeather();
     return this.weathers;
-  }
-
-  getOne(id: string): Weather {
-    const weather = this.weathers.find(
-      (weather) => weather.id === parseInt(id),
-    );
-    if (!weather) {
-      throw new NotFoundException(`Weather with ID ${id}`);
-    }
-    return weather;
-  }
-
-  deleteOne(id: string) {
-    this.getOne(id); //error를 체크해보는거야.
-    this.movies = this.movies.filter((movie) => movie.id !== parseInt(id));
-  }
-
-  create(weatherData) {
-    this.movies.push({
-      id: this.movies.length + 1,
-      ...weatherData,
-    });
-  }
-
-  update(id: string, updateData) {
-    const weather = this.getOne(id);
-    this.deleteOne(id);
-    this.movies.push({ ...weather, ...updateData });
   }
 }
