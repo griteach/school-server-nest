@@ -1,4 +1,8 @@
+import { NotFoundException } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
+import exp from 'constants';
+import { after } from 'node:test';
+import { NotFoundError } from 'rxjs';
 import { MovieService } from './movie.service';
 
 describe('MovieService', () => {
@@ -36,6 +40,61 @@ describe('MovieService', () => {
       });
       const movie = service.getOne(1);
       expect(movie).toBeDefined();
+    });
+  });
+
+  describe('deleteOne', () => {
+    it('deletes a movie', () => {
+      service.create({
+        title: 'Test',
+        year: 2022,
+        genres: ['humor', 'horor'],
+      });
+      const beforeDelete = service.getAll().length;
+      service.deleteOne(1);
+      const afterDelete = service.getAll().length;
+      expect(afterDelete).toBeLessThan(beforeDelete);
+    });
+    it('should return a 404', () => {
+      try {
+        service.deleteOne(999);
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+      }
+    });
+  });
+  describe('create', () => {
+    it('should create a movie', () => {
+      const beforeCreate = service.getAll().length;
+
+      service.create({
+        title: 'Test',
+        year: 2022,
+        genres: ['humor', 'horor'],
+      });
+      const afterCreate = service.getAll().length;
+
+      expect(afterCreate).toBeGreaterThan(beforeCreate);
+    });
+  });
+
+  describe('update', () => {
+    it('should update a movie', () => {
+      service.create({
+        title: 'Test',
+        year: 2022,
+        genres: ['humor', 'horor'],
+      });
+      service.update(1, { title: 'Updated test' });
+      const movie = service.getOne(1);
+      expect(movie.title).toEqual('Updated test');
+    });
+    it('should throw a NotFoundException', () => {
+      try {
+        service.update(999, { title: 'Updated test' });
+      } catch (e) {
+        expect(e).toBeInstanceOf(NotFoundException);
+      }
     });
   });
 });
