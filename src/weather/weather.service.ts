@@ -27,8 +27,13 @@ export class WeatherService {
       );
     this.weathers = result;
   }
-  getWeather() {
+  getWeatherAll() {
     this.fetchWeather();
     return this.weathers;
+  }
+
+  getWeatherOne(station_name: string): Weather {
+    this.fetchWeather();
+    return this.weathers.find((item) => item.stationName === station_name);
   }
 }
